@@ -1,0 +1,3 @@
+SUPER_ADMIN='S'
+ADMIN='A'
+USER='U'

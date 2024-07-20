@@ -1,0 +1,47 @@
+{% load i18n %}
+
+{% block subject %}
+{% blocktrans %}Activate Your Account on {{ site_name }}{% endblocktrans %}
+{% endblock subject %}
+
+{% block text_body %}
+{% blocktrans with username=user.username %}
+👋 Hello {{ username }},
+
+Thank you for signing up for {{ site_name }}. To activate your account, please click the link below:
+{% endblocktrans %}
+
+{{ protocol }}://{{ domain }}/{{ url|safe }}
+
+{% trans "If you didn't create an account on our site, you can ignore this email." %}
+
+{% trans "Thanks for choosing our platform!" %}
+
+{% blocktrans %}
+Best regards,
+The {{ site_name }} Team 🚀
+{% endblocktrans %}
+{% endblock text_body %}
+
+{% block html_body %}
+<div style="background-color: #f5f5f5; padding: 20px;">
+  <h2 style="color: #333333;">Activate Your Account</h2>
+  <p style="color: #555555;">
+    👋 Hello {{ username }},<br><br>
+    Thank you for signing up for <strong>{{ site_name }}</strong>. To activate your account, please click the link below:
+  </p>
+  <a href="{{ protocol }}://{{ domain }}/{{ url|safe }}" style="margin-top: 20px; background-color: #007bff; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px;">
+    🚀 Activate Account
+  </a>
+  <p style="color: #555555; margin-top: 20px;">
+    If you didn't create an account on our site, you can ignore this email.
+  </p>
+  <p style="color: #555555;">
+    Thanks for choosing our platform! 🌟
+  </p>
+  <p style="color: #777777;">
+    Best regards,<br>
+    The {{ site_name }} Team 🌈
+  </p>
+</div>
+{% endblock html_body %}

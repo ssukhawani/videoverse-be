@@ -1,0 +1,43 @@
+{% load i18n %}
+
+{% block subject %}
+{% blocktrans %}Account Verified on {{ site_name }}{% endblocktrans %}
+{% endblock subject %}
+
+{% block text_body %}
+{% blocktrans with username=user.username %}
+🎉 Congratulations, {{ username }}!
+
+Your account has been successfully verified on {{ site_name }}. You can now fully enjoy our platform and its features.
+
+If you have any questions or need assistance, please don't hesitate to reach out to our support team. We're here to help!
+
+{% endblocktrans %}
+
+{% trans "Thank you for choosing our platform, and we look forward to serving you!" %}
+
+{% blocktrans %}
+Best regards,
+The {{ site_name }} Team 🌈
+{% endblocktrans %}
+{% endblock text_body %}
+
+{% block html_body %}
+<div style="background-color: #f5f5f5; padding: 20px;">
+  <h2 style="color: #333333;">Account Verified!</h2>
+  <p style="color: #555555;">
+    🎉 Congratulations, {{ username }}!<br><br>
+    Your account has been successfully verified on <strong>{{ site_name }}</strong>. You can now fully enjoy our platform and its features.
+  </p>
+  <p style="color: #555555;">
+    If you have any questions or need assistance, please don't hesitate to reach out to our support team. We're here to help!
+  </p>
+  <p style="color: #555555;">
+    Thank you for choosing our platform, and we look forward to serving you!
+  </p>
+  <p style="color: #777777;">
+    Best regards,<br>
+    The {{ site_name }} Team 🌈
+  </p>
+</div>
+{% endblock html_body %}
