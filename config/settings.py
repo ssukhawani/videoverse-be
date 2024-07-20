@@ -56,7 +56,7 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'djoser',
-    'debug_toolbar'
+    'debug_toolbar',
 ]
 
 CUSTOM_APPS = [
@@ -157,6 +157,13 @@ USE_TZ = False
 
 APPEND_SLASH=False
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = True
+
 CUSTOM_DOMAIN = os.environ.get('CUSTOM_DOMAIN')
 SITE_NAME = os.environ.get('SITE_NAME')
 
@@ -197,7 +204,7 @@ DJOSER = {
 
 
 SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('API-Key',),
+    'AUTH_HEADER_TYPES': ('Bearer',),
     'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7)
 }

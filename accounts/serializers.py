@@ -2,7 +2,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer, ActivationS
 
 class CustomUserCrateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
-        fields = ['id', 'email', 'password','full_name']
+        fields = ['id','full_name', 'email', 'password']
         
 class CustomUserSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
