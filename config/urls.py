@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
+from accounts import views
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html')),
@@ -26,6 +27,7 @@ urlpatterns = [
     path("__debug__/", include("debug_toolbar.urls")),
     path('api/v1/auth/', include('djoser.urls')),
     path('api/v1/auth/', include('djoser.urls.jwt')),
+    path("api/v1/auth/logout/", views.LogoutView.as_view()),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

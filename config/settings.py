@@ -204,7 +204,7 @@ DJOSER = {
 
 
 SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_TYPES': ('API-Key',),
     'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7)
 }
