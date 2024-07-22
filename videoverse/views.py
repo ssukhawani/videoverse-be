@@ -13,8 +13,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import models
-from .models import Video
-from .serializers import VideoSerializer, VideoRetrieveSerializer
+from .models import Video, TrimmedVideo
+from .serializers import VideoSerializer, VideoRetrieveSerializer, TrimmedVideoSerializer
 
 DEFAULT_DAILY_UPLOAD_LIMIT = 20
 DEFAULT_MAX_UPLOAD_SIZE_MB = 1000
@@ -161,7 +161,12 @@ class GetOrCreateThumbnailsView(APIView):
         ]
 
         return Response(thumbnail_urls)
-    
+
+class ListTrimmedVideosView(generics.ListAPIView):
+    serializer_class = TrimmedVideoSerializer
+
+    def get_queryset(self):
+        return TrimmedVideo.objects.filter(user=self.request.user)    
 
 class TrimVideoView(APIView):
     permission_classes = [IsAuthenticated]
@@ -182,9 +187,9 @@ class TrimVideoView(APIView):
         trimmed_video_dir = os.path.join(settings.MEDIA_ROOT, 'trimmed_videos', str(video_id))
         os.makedirs(trimmed_video_dir, exist_ok=True)
 
-        # Generate a unique identifier
         unique_id = str(uuid.uuid4())
-        trimmed_video_path = os.path.join(trimmed_video_dir, f'trimmed_{start_time}_{end_time}_{unique_id[:10]}.mp4')
+        trimmed_video_filename = f'trimmed_{start_time}_{end_time}_{unique_id[:10]}.mp4'
+        trimmed_video_path = os.path.join(trimmed_video_dir, trimmed_video_filename)
 
         command = [
             'ffmpeg',
@@ -200,6 +205,24 @@ class TrimVideoView(APIView):
         except subprocess.CalledProcessError as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        trimmed_video_url = os.path.join('trimmed_videos', str(video_id), os.path.basename(trimmed_video_path))
+        # Get file size
+        file_size = os.path.getsize(trimmed_video_path)
+
+        # Save relative path
+        relative_trimmed_video_path = os.path.relpath(trimmed_video_path, settings.MEDIA_ROOT)
+
+        # Create a TrimmedVideo entry
+        trimmed_video = TrimmedVideo.objects.create(
+            user=request.user,
+            original_video=video,
+            file_path=relative_trimmed_video_path,
+            file_size=file_size,
+            start_time=start_time,
+            end_time=end_time,
+            name=trimmed_video_filename
+        )
+
+        # Return the URL to the trimmed video
+        trimmed_video_url = os.path.join('trimmed_videos', str(video_id), trimmed_video_filename)
 
         return Response({'trimmed_video_url': trimmed_video_url}, status=status.HTTP_200_OK)

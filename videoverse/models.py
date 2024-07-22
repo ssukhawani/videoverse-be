@@ -27,3 +27,17 @@ class Video(models.Model):
             full_file_path = default_storage.generate_filename(path)
             self.file_path = full_file_path
         super().save(*args, **kwargs)
+        
+
+class TrimmedVideo(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    original_video = models.ForeignKey('Video', on_delete=models.CASCADE)
+    file_path = models.CharField(max_length=255)
+    file_size = models.PositiveIntegerField()  # Size in bytes
+    start_time = models.FloatField()
+    end_time = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"Trimmed Video {self.id} by User {self.user.full_name}"
