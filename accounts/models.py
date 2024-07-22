@@ -1,11 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Group
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db.models import UniqueConstraint
 from .managers import CustomUserManager
 from . import constants
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from enum import Enum
 import uuid
 
 
@@ -45,18 +42,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     @property
     def get_full_name(self):
         return self.full_name
-
-@receiver(post_save, sender=CustomUser)
-def add_user_to_group(sender, instance, created, **kwargs):
-    if created:
-        if instance.role == Role.ADMIN:
-            admin_group, created = Group.objects.get_or_create(name='Admin')
-            instance.groups.add(admin_group)
-        elif instance.role == Role.SUPER_ADMIN:
-            # Ensure that superuser and staff fields are set correctly
-            instance.is_superuser = True
-            instance.is_staff = True
-            instance.save()
 
 class Limit(models.TextChoices):
     UPLOAD_SIZE_LIMIT = "UPLOAD_SIZE_LIMIT", "upload_size_limit"
