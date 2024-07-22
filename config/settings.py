@@ -36,10 +36,10 @@ INTERNAL_IPS = ['127.0.0.1']
 
 # CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000', "https://adjusted-glowworm-cheerful.ngrok-free.app"]
 
-ALLOWED_HOSTS = ['15.206.80.18','backend.bytegenie.tech','www.backend.bytegenie.tech', 'bytegenie.tech', 'www.bytegenie.tech', ]
+ALLOWED_HOSTS = ['65.2.73.12','backend.bytegenie.tech','www.backend.bytegenie.tech', 'bytegenie.tech', 'www.bytegenie.tech', ]
 
 CORS_ALLOWED_ORIGINS = [
-     'http://15.206.80.18', 'https://backend.bytegenie.tech', 'https://bytegenie.tech', 'https://www.bytegenie.tech', 'https://www.backend.bytegenie.tech'
+     'http://65.2.73.12', 'https://backend.bytegenie.tech', 'https://bytegenie.tech', 'https://www.bytegenie.tech', 'https://www.backend.bytegenie.tech'
 ]
 
 
