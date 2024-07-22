@@ -124,7 +124,7 @@ class GetOrCreateThumbnailsView(APIView):
         video_path = os.path.join(settings.MEDIA_ROOT, video.file_path)
         thumbnail_dir = os.path.join(settings.MEDIA_ROOT, 'thumbnails', str(video_id))
         os.makedirs(thumbnail_dir, exist_ok=True)
-        max_thumbnails = 10  # Maximum number of thumbnails
+        max_thumbnails = 12  # Maximum number of thumbnails
 
         # Check if thumbnails already exist
         thumbnails = [f for f in os.listdir(thumbnail_dir) if f.endswith('.jpg')]
