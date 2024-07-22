@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, UserLimit
+from .models import CustomUser, UserLimit, Role
+from django.contrib.auth.models import Group
 
 # Register your models here.
 class CustomUserAdmin(UserAdmin):
@@ -22,6 +23,23 @@ class CustomUserAdmin(UserAdmin):
         ('Permissions', {'fields': ('is_verified', 'is_staff', 'is_superuser', 'is_active')}),
     )
     list_per_page = 20
+
+    def save_model(self, request, obj, form, change):
+        if obj.role == Role.SUPER_ADMIN:
+            obj.is_superuser = True
+            obj.is_staff = True
+        elif obj.role == Role.ADMIN:
+            obj.is_superuser = False
+            obj.is_staff = True
+        else:
+            obj.is_superuser = False
+            obj.is_staff = False
+
+        super().save_model(request, obj, form, change)
+
+        if obj.role == Role.ADMIN:
+            admin_group, created = Group.objects.get_or_create(name='Admin')
+            obj.groups.add(admin_group)
 
 admin.site.register(CustomUser, CustomUserAdmin)
 
