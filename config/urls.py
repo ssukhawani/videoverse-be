@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/v1/auth/', include('djoser.urls')),
     path('api/v1/auth/', include('djoser.urls.jwt')),
     path("api/v1/auth/logout/", views.LogoutView.as_view()),
+    path("api/v1/videos/", include("videoverse.urls")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

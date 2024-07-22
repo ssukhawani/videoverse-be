@@ -1,8 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.db.models import UniqueConstraint
 from .managers import CustomUserManager
 from . import constants
+from enum import Enum
 import uuid
+
 
 # Create your models here.
 AUTH_PROVIDERS = {'email':'email', 'google':'google'}
@@ -40,3 +43,39 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     @property
     def get_full_name(self):
         return self.full_name
+
+
+class Limit(models.TextChoices):
+    UPLOAD_SIZE_LIMIT = "UPLOAD_SIZE_LIMIT", "upload_size_limit"
+    UPLOAD_NUMBER_LIMIT = "UPLOAD_NUMBER_LIMIT", "upload_number_limit"
+    STORAGE_QUOTA = "STORAGE_QUOTA", "storage_quota"
+    DAILY_UPLOAD_LIMIT = "DAILY_UPLOAD_LIMIT", "daily_upload_limit"
+    MONTHLY_UPLOAD_LIMIT = "MONTHLY_UPLOAD_LIMIT", "monthly_upload_limit"
+    CONCURRENT_UPLOADS_LIMIT = "CONCURRENT_UPLOADS_LIMIT", "concurrent_uploads_limit"
+
+class Unit(models.TextChoices):
+    KB = "KB", "KB"
+    MB = "MB", "MB"
+    GB = "GB", "GB"
+    NUMBER = "NUMBER", "NUMBER"
+    
+class UserLimit(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='limits', db_index=True)
+    limit_name = models.CharField(max_length=50, choices=Limit.choices)
+    limit_value = models.PositiveIntegerField(help_text=(
+        'Enter the limit value. Units:<br>'
+        '- upload_size_limit: mb<br>'
+        '- upload_number_limit: number of uploads<br>'
+        '- storage_quota: mb<br>'
+        '- daily_upload_limit: number of uploads<br>'
+        '- monthly_upload_limit: number of uploads<br>'
+        '- concurrent_uploads_limit: number of concurrent uploads'
+    ))
+    unit = models.CharField(max_length=50, choices=Unit.choices)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['user', 'limit_name'], name='unique_user_limit')
+        ]
+    def __str__(self):
+        return f'{self.limit_name} for {self.user.full_name}: {self.limit_value}'

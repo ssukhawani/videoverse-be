@@ -36,8 +36,6 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', "adjusted-glowworm-cheerful.ngrok-fre
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000', "https://adjusted-glowworm-cheerful.ngrok-free.app"]
 
-
-
 # Application definition
 
 DJANGO_APPS = [
@@ -60,7 +58,8 @@ THIRD_PARTY_APPS = [
 ]
 
 CUSTOM_APPS = [
-    'accounts'
+    'accounts',
+    'videoverse'
 ]  
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
