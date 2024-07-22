@@ -32,9 +32,16 @@ DEBUG = True
 
 INTERNAL_IPS = ['127.0.0.1']
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', "adjusted-glowworm-cheerful.ngrok-free.app"]
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', "adjusted-glowworm-cheerful.ngrok-free.app"]
 
-CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000', "https://adjusted-glowworm-cheerful.ngrok-free.app"]
+# CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000', "https://adjusted-glowworm-cheerful.ngrok-free.app"]
+
+ALLOWED_HOSTS = ['65.2.191.191','backend.bytegenie.tech','www.backend.bytegenie.tech', 'bytegenie.tech', 'www.bytegenie.tech', ]
+
+CORS_ALLOWED_ORIGINS = [
+     'http://65.2.191.191', 'https://backend.bytegenie.tech', 'https://bytegenie.tech', 'https://www.bytegenie.tech', 'https://www.backend.bytegenie.tech'
+]
+
 
 # Application definition
 
