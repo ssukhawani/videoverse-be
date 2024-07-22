@@ -41,3 +41,16 @@ class TrimmedVideo(models.Model):
 
     def __str__(self):
         return f"Trimmed Video {self.id} by User {self.user.full_name}"
+    
+
+class MergedVideo(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    trimmed_videos = models.ManyToManyField('TrimmedVideo')
+    file_path = models.CharField(max_length=255)
+    file_size = models.PositiveIntegerField()  # Size in bytes
+    name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Merged Video {self.id} by User {self.user.full_name}"
+    

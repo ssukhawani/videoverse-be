@@ -13,12 +13,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import models
-from .models import Video, TrimmedVideo
-from .serializers import VideoSerializer, VideoRetrieveSerializer, TrimmedVideoSerializer
+from .models import Video, TrimmedVideo, MergedVideo
+from .serializers import VideoSerializer, VideoRetrieveSerializer, TrimmedVideoSerializer, MergedVideoSerializer
 
 DEFAULT_DAILY_UPLOAD_LIMIT = 20
 DEFAULT_MAX_UPLOAD_SIZE_MB = 1000
-DEFAULT_STORAGE_QUOTA_MB = 1000
+DEFAULT_STORAGE_QUOTA_MB = 2000
 
 class UserVideoListView(generics.ListAPIView):
     serializer_class = VideoRetrieveSerializer
@@ -71,7 +71,7 @@ class VideoUploadView(generics.CreateAPIView):
         
         # Check total storage quota
         storage_quota = user.limits.filter(limit_name='storage_quota').first()
-        storage_quota_value = storage_quota.limit_value if storage_quota else DEFAULT_STORAGE_QUOTA_MB * 1024 * 1024  # 5000 MB default
+        storage_quota_value = storage_quota.limit_value if storage_quota else DEFAULT_STORAGE_QUOTA_MB * 1024 * 1024  # 1000 MB default
         total_size = Video.objects.filter(uploader=user).aggregate(total_size=models.Sum('file_size'))['total_size'] or 0
 
         if total_size + file_size > storage_quota_value:
@@ -166,7 +166,7 @@ class ListTrimmedVideosView(generics.ListAPIView):
     serializer_class = TrimmedVideoSerializer
 
     def get_queryset(self):
-        return TrimmedVideo.objects.filter(user=self.request.user)    
+        return TrimmedVideo.objects.filter(user=self.request.user).order_by('-pk')  
 
 class TrimVideoView(APIView):
     permission_classes = [IsAuthenticated]
@@ -226,3 +226,66 @@ class TrimVideoView(APIView):
         trimmed_video_url = os.path.join('trimmed_videos', str(video_id), trimmed_video_filename)
 
         return Response({'trimmed_video_url': trimmed_video_url}, status=status.HTTP_200_OK)
+
+
+class MergedVideoListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        merged_videos = MergedVideo.objects.filter(user=user)
+        serializer = MergedVideoSerializer(merged_videos, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MergeTrimmedVideosView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        trimmed_video_ids = request.data.get('video_ids', [])
+        name = request.data.get('name', 'Merged Video')
+
+        if not trimmed_video_ids:
+            return Response({'error': 'No trimmed videos selected'}, status=status.HTTP_400_BAD_REQUEST)
+
+        trimmed_videos = TrimmedVideo.objects.filter(id__in=trimmed_video_ids)
+        if not trimmed_videos.exists():
+            return Response({'error': 'Some trimmed videos not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Create a unique file path for the merged video
+        unique_id = str(uuid.uuid4())
+        merged_video_path = os.path.join(settings.MEDIA_ROOT, 'merged_videos', f'merged_{unique_id}.mp4')
+        os.makedirs(os.path.dirname(merged_video_path), exist_ok=True)
+
+        # Create a join_video.txt file with paths of videos to be merged
+        join_file_path = os.path.join(settings.MEDIA_ROOT, 'merged_videos', 'join_video.txt')
+        with open(join_file_path, 'w') as f:
+            for video in trimmed_videos:
+                f.write(f"file '{os.path.join(settings.MEDIA_ROOT, video.file_path)}'\n")
+
+        # Build the ffmpeg command to merge videos using join_video.txt
+        command = f'ffmpeg -f concat -safe 0 -i "{join_file_path}" -c copy "{merged_video_path}"'
+
+        try:
+            subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except subprocess.CalledProcessError as e:
+            return Response({'error': f'Error merging videos: {e.stderr.decode()}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        finally:
+            # Clean up the join_video.txt file
+            os.remove(join_file_path)
+
+        # Get file size
+        file_size = os.path.getsize(merged_video_path)
+
+        # Create a MergedVideo entry
+        merged_video = MergedVideo.objects.create(
+            user=user,
+            file_path=os.path.join('merged_videos', f'merged_{unique_id}.mp4'),
+            file_size=file_size,
+            name=name
+        )
+        merged_video.trimmed_videos.set(trimmed_videos)
+
+        serializer = MergedVideoSerializer(merged_video)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

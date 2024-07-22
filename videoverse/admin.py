@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Video, TrimmedVideo
+from .models import Video, TrimmedVideo, MergedVideo
 
 # Register your models here.
 class VideoAdmin(admin.ModelAdmin):
@@ -20,3 +20,8 @@ class TrimmedVideoAdmin(admin.ModelAdmin):
         if obj:  # Editing an existing object
             return self.readonly_fields + ('file_path', 'file_size',)
         return self.readonly_fields
+
+@admin.register(MergedVideo)
+class MergedVideoAdmin(admin.ModelAdmin):
+    list_display = ('user', 'file_path', 'file_size', 'created_at')
+    search_fields = ('file_path', 'user__username')

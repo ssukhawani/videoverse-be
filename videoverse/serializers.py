@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Video, TrimmedVideo
+from .models import Video, TrimmedVideo, MergedVideo
 
 class VideoSerializer(serializers.ModelSerializer):
     file_path = serializers.CharField(required=False, read_only=True)
@@ -17,3 +17,8 @@ class TrimmedVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrimmedVideo
         fields = ['id', 'file_path', 'file_size', 'start_time', 'end_time', 'created_at', 'name']
+
+class MergedVideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MergedVideo
+        fields = ['id', 'user', 'trimmed_videos', 'file_path', 'file_size', 'name', 'created_at']
